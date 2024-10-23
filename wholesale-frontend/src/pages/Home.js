@@ -2,14 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { 
   Container, Typography, Grid, Card, CardContent, CardMedia, Button, Box, 
   Paper, Divider, useTheme, useMediaQuery, Skeleton, IconButton,
-  Carousel, Rating, Chip
+  Rating, Chip
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { getProducts, getSuppliers, getStoreName } from '../api';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import SecurityIcon from '@mui/icons-material/Security';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+
+// Demo products
+const demoProducts = [
+  { _id: 'demo1', name: 'Premium Headphones', description: 'High-quality wireless headphones with noise cancellation', category: 'Electronics', price: 199.99, quantity: 50, image: 'https://source.unsplash.com/featured/?headphones' },
+  { _id: 'demo2', name: 'Ergonomic Office Chair', description: 'Comfortable chair for long work hours', category: 'Furniture', price: 249.99, quantity: 30, image: 'https://source.unsplash.com/featured/?chair' },
+  { _id: 'demo3', name: 'Smart Home Hub', description: 'Control your entire home with voice commands', category: 'Smart Home', price: 129.99, quantity: 75, image: 'https://source.unsplash.com/featured/?smarthome' },
+  { _id: 'demo4', name: 'Portable Bluetooth Speaker', description: 'Waterproof speaker with 20-hour battery life', category: 'Electronics', price: 79.99, quantity: 100, image: 'https://source.unsplash.com/featured/?speaker' },
+  { _id: 'demo5', name: 'Stainless Steel Cookware Set', description: '10-piece set for all your cooking needs', category: 'Kitchen', price: 199.99, quantity: 40, image: 'https://source.unsplash.com/featured/?cookware' },
+  { _id: 'demo6', name: 'Yoga Mat', description: 'Non-slip, eco-friendly yoga mat', category: 'Fitness', price: 29.99, quantity: 200, image: 'https://source.unsplash.com/featured/?yogamat' },
+  { _id: 'demo7', name: 'LED Desk Lamp', description: 'Adjustable lamp with multiple lighting modes', category: 'Home Office', price: 49.99, quantity: 150, image: 'https://source.unsplash.com/featured/?desklamp' },
+  { _id: 'demo8', name: 'Electric Toothbrush', description: 'Rechargeable toothbrush with multiple cleaning modes', category: 'Personal Care', price: 89.99, quantity: 80, image: 'https://source.unsplash.com/featured/?toothbrush' },
+];
 
 function Home() {
   const [storeName, setStoreName] = useState('');
@@ -28,10 +40,11 @@ function Home() {
           getSuppliers()
         ]);
         setStoreName(storeResponse.data.name);
-        setFeaturedProducts(productsResponse.data.slice(0, 8));
+        setFeaturedProducts(productsResponse.data.length > 0 ? productsResponse.data.slice(0, 8) : demoProducts);
         setFeaturedSuppliers(suppliersResponse.data.slice(0, 4));
       } catch (error) {
         console.error('Error fetching data:', error);
+        setFeaturedProducts(demoProducts);
       } finally {
         setLoading(false);
       }
@@ -75,7 +88,7 @@ function Home() {
         }}
       >
         <Typography component="h1" variant="h2" color="inherit" gutterBottom>
-          Welcome to {storeName}
+          Welcome to {storeName || 'Our Wholesale Platform'}
         </Typography>
         <Typography variant="h5" color="inherit" paragraph>
           Connect with top suppliers and manage your inventory effortlessly
@@ -87,10 +100,10 @@ function Home() {
     </Paper>
   );
 
-  const FeaturedProducts = () => (
+  const ProductList = () => (
     <Box sx={{ my: 8 }}>
       <Typography variant="h4" gutterBottom align="center">
-        Featured Products
+        Our Products
       </Typography>
       <Grid container spacing={2}>
         {featuredProducts.map((product) => (
@@ -99,7 +112,7 @@ function Home() {
               <CardMedia
                 component="img"
                 height="140"
-                image={product.image || 'https://via.placeholder.com/140'}
+                image={product.image}
                 alt={product.name}
               />
               <CardContent sx={{ flexGrow: 1 }}>
@@ -113,53 +126,27 @@ function Home() {
                   <Typography variant="h6" color="primary">
                     ${product.price.toFixed(2)}
                   </Typography>
-                  <Rating name="read-only" value={4.5} readOnly size="small" />
+                  <Chip label={product.category} size="small" />
                 </Box>
+                <Rating name="read-only" value={4.5} readOnly size="small" sx={{ mt: 1 }} />
               </CardContent>
-              <Button size="small" color="primary" component={Link} to={`/products/${product._id}`}>
-                View Details
+              <Button 
+                size="small" 
+                color="primary" 
+                startIcon={<ShoppingCartIcon />}
+                sx={{ m: 1 }}
+              >
+                Add to Cart
               </Button>
             </Card>
           </Grid>
         ))}
       </Grid>
-    </Box>
-  );
-
-  const SupplierHighlights = () => (
-    <Box sx={{ my: 8 }}>
-      <Typography variant="h4" gutterBottom align="center">
-        Top Suppliers
-      </Typography>
-      <Grid container spacing={4}>
-        {featuredSuppliers.map((supplier) => (
-          <Grid item key={supplier._id} xs={12} sm={6} md={3}>
-            <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <CardMedia
-                component="img"
-                height="140"
-                image={supplier.coverImage || 'https://via.placeholder.com/140'}
-                alt={supplier.companyName}
-              />
-              <CardContent sx={{ flexGrow: 1 }}>
-                <Typography gutterBottom variant="h6" component="h2">
-                  {supplier.companyName}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {supplier.description.substring(0, 100)}...
-                </Typography>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
-                  <Chip label={supplier.industry} color="primary" size="small" />
-                  <Rating name="read-only" value={supplier.rating} readOnly size="small" />
-                </Box>
-              </CardContent>
-              <Button size="small" color="primary" component={Link} to={`/suppliers/${supplier._id}`}>
-                View Profile
-              </Button>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <Button variant="contained" color="primary" component={Link} to="/products">
+          View All Products
+        </Button>
+      </Box>
     </Box>
   );
 
@@ -236,9 +223,7 @@ function Home() {
   return (
     <Container maxWidth="lg">
       <HeroSection />
-      <FeaturedProducts />
-      <Divider sx={{ my: 4 }} />
-      <SupplierHighlights />
+      <ProductList />
       <Divider sx={{ my: 4 }} />
       <Features />
       <CallToAction />

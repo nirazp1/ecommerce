@@ -3,16 +3,17 @@ import {
   Container, Typography, Grid, Card, CardContent, CardMedia, Button, Box, 
   TextField, Select, MenuItem, Pagination, Chip, Rating, InputAdornment,
   IconButton, Drawer, List, ListItem, ListItemText, Checkbox, FormGroup, FormControlLabel,
-  Slider, useTheme, useMediaQuery
+  Slider, useTheme, useMediaQuery, CircularProgress
 } from '@mui/material';
-import { Search, FilterList, Close } from '@mui/icons-material';
+import { Search, FilterList, ShoppingCart } from '@mui/icons-material';
 import { getProducts } from '../api';
+import { useNavigate } from 'react-router-dom';
 
 function ProductList() {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [category, setCategory] = useState('');
   const [sortBy, setSortBy] = useState('');
   const [page, setPage] = useState(1);
   const [priceRange, setPriceRange] = useState([0, 1000]);
@@ -21,15 +22,23 @@ function ProductList() {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const navigate = useNavigate();
   const productsPerPage = 12;
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const response = await getProducts();
-      setProducts(response.data);
-      setFilteredProducts(response.data);
-      const uniqueCategories = [...new Set(response.data.map(product => product.category))];
-      setCategories(uniqueCategories);
+      setLoading(true);
+      try {
+        const response = await getProducts();
+        setProducts(response.data);
+        setFilteredProducts(response.data);
+        const uniqueCategories = [...new Set(response.data.map(product => product.category))];
+        setCategories(uniqueCategories);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchProducts();
   }, []);
@@ -104,6 +113,14 @@ function ProductList() {
     </Drawer>
   );
 
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
     <Container maxWidth="xl">
       <Box sx={{ my: 4 }}>
@@ -172,7 +189,16 @@ function ProductList() {
                   </Box>
                   <Rating name="read-only" value={4.5} readOnly size="small" sx={{ mt: 1 }} />
                 </CardContent>
-                <Button variant="contained" color="primary" fullWidth>
+                <Button 
+                  variant="contained" 
+                  color="primary" 
+                  fullWidth
+                  startIcon={<ShoppingCart />}
+                  onClick={() => {
+                    // Implement add to cart functionality
+                    console.log('Add to cart:', product);
+                  }}
+                >
                   Add to Cart
                 </Button>
               </Card>

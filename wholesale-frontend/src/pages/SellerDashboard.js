@@ -46,6 +46,12 @@ const demoProducts = [
   { _id: 'demo3', name: 'Smart Home Hub', description: 'Control your entire home with voice commands', category: 'Smart Home', price: 129.99, quantity: 75 },
 ];
 
+// Add this helper function at the top of your component file
+const formatPrice = (price) => {
+  const numPrice = Number(price);
+  return isNaN(numPrice) ? '0.00' : numPrice.toFixed(2);
+};
+
 function SellerDashboard() {
   const { isAuthenticated, userRole, logout } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -372,7 +378,7 @@ function SellerDashboard() {
                           <TableCell>{product.name}</TableCell>
                           <TableCell>{product.description}</TableCell>
                           <TableCell>{product.category}</TableCell>
-                          <TableCell>${product.price.toFixed(2)}</TableCell>
+                          <TableCell>${formatPrice(product.price)}</TableCell>
                           <TableCell>{product.quantity}</TableCell>
                           <TableCell>
                             <IconButton onClick={() => {

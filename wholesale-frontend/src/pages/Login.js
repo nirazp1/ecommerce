@@ -27,12 +27,17 @@ function Login() {
     e.preventDefault();
     setError('');
     try {
+      console.log('Attempting login with:', { email, password, role });
       const response = await login({ email, password, role });
-      authLogin(response.data.token, role);
-      navigate(role === 'buyer' ? '/' : '/seller-dashboard');
+      console.log('Login response:', response.data);
+      authLogin(response.data.token, response.data.role);
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('userRole', response.data.role);
+      console.log('Stored in localStorage:', { token: response.data.token, role: response.data.role });
+      navigate(role === 'buyer' ? '/' : '/dashboard');
     } catch (error) {
+      console.error('Login error:', error.response || error);
       setError('Invalid email or password');
-      console.error('Login error:', error);
     }
   };
 

@@ -9,7 +9,6 @@ import UserDashboard from './pages/UserDashboard';
 import SellerDashboard from './pages/SellerDashboard';
 import Cart from './pages/Cart';
 import { AuthContext } from './contexts/AuthContext';
-import BusinessRegistration from './pages/BusinessRegistration';
 
 function AppRoutes() {
   const { isAuthenticated, userRole } = useContext(AuthContext);
@@ -21,18 +20,16 @@ function AppRoutes() {
       <Route path="/suppliers" element={<SupplierList />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/business-registration" element={<BusinessRegistration />} />
       <Route 
         path="/dashboard" 
         element={
           isAuthenticated ? 
-            (userRole === 'buyer' ? <UserDashboard /> : <SellerDashboard />) : 
-            <Navigate to="/login" />
+            (userRole === 'buyer' ? <UserDashboard /> : 
+             userRole === 'seller' ? <SellerDashboard /> : 
+             <Navigate to="/" />)
+            : <Navigate to="/login" />
         } 
       />
-      <Route path="/seller-dashboard" element={
-        isAuthenticated && userRole === 'seller' ? <SellerDashboard /> : <Navigate to="/login" />
-      } />
       <Route path="/cart" element={<Cart />} />
     </Routes>
   );

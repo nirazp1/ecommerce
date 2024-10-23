@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Container, Typography, Grid, Card, CardContent, CardMedia, Button, Box, 
-  Paper, Divider, useTheme, useMediaQuery, Skeleton, IconButton
+  Paper, Divider, useTheme, useMediaQuery, Skeleton, IconButton,
+  Carousel, Rating, Chip
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { getProducts, getSuppliers, getStoreName } from '../api';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import SecurityIcon from '@mui/icons-material/Security';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 function Home() {
   const [storeName, setStoreName] = useState('');
@@ -107,11 +109,14 @@ function Home() {
                 <Typography variant="body2" color="text.secondary">
                   {product.description.substring(0, 60)}...
                 </Typography>
-                <Typography variant="h6" color="primary" sx={{ mt: 2 }}>
-                  ${product.price.toFixed(2)}
-                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
+                  <Typography variant="h6" color="primary">
+                    ${product.price.toFixed(2)}
+                  </Typography>
+                  <Rating name="read-only" value={4.5} readOnly size="small" />
+                </Box>
               </CardContent>
-              <Button size="small" color="primary">
+              <Button size="small" color="primary" component={Link} to={`/products/${product._id}`}>
                 View Details
               </Button>
             </Card>
@@ -143,8 +148,12 @@ function Home() {
                 <Typography variant="body2" color="text.secondary">
                   {supplier.description.substring(0, 100)}...
                 </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
+                  <Chip label={supplier.industry} color="primary" size="small" />
+                  <Rating name="read-only" value={supplier.rating} readOnly size="small" />
+                </Box>
               </CardContent>
-              <Button size="small" color="primary">
+              <Button size="small" color="primary" component={Link} to={`/suppliers/${supplier._id}`}>
                 View Profile
               </Button>
             </Card>
@@ -195,14 +204,14 @@ function Home() {
   );
 
   const CallToAction = () => (
-    <Paper sx={{ my: 8, p: 6, textAlign: 'center' }}>
+    <Paper sx={{ my: 8, p: 6, textAlign: 'center', backgroundColor: theme.palette.primary.main, color: 'white' }}>
       <Typography variant="h4" gutterBottom>
         Ready to grow your business?
       </Typography>
       <Typography variant="body1" paragraph>
         Join our platform today and connect with top suppliers from around the world.
       </Typography>
-      <Button variant="contained" color="primary" component={Link} to="/register" size="large">
+      <Button variant="contained" color="secondary" component={Link} to="/register" size="large">
         Get Started
       </Button>
     </Paper>
@@ -228,9 +237,9 @@ function Home() {
     <Container maxWidth="lg">
       <HeroSection />
       <FeaturedProducts />
-      <Divider />
+      <Divider sx={{ my: 4 }} />
       <SupplierHighlights />
-      <Divider />
+      <Divider sx={{ my: 4 }} />
       <Features />
       <CallToAction />
     </Container>

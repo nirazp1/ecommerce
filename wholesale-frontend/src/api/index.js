@@ -13,8 +13,9 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers['Authorization'] = `Bearer ${token}`;
   }
+  console.log('API request:', { url: config.url, method: config.method, headers: config.headers });
   return config;
 }, (error) => {
   return Promise.reject(error);
@@ -22,7 +23,14 @@ api.interceptors.request.use((config) => {
 
 export const getProducts = () => api.get('/inventory/products');
 export const getSuppliers = () => api.get('/suppliers');
-export const login = (credentials) => api.post('/auth/login', credentials);
+export const login = async (credentials) => {
+  const response = await api.post('/auth/login', credentials);
+  if (response.data.token) {
+    localStorage.setItem('token', response.data.token);
+    localStorage.setItem('userRole', response.data.role);
+  }
+  return response;
+};
 export const register = (userData) => api.post('/auth/register', userData);
 export const getStoreName = () => api.get('/store/name');
 export const getProfile = () => {
@@ -49,5 +57,33 @@ export const getFavoriteProducts = () => {
   });
 };
 export const registerBusiness = (businessData) => api.post('/auth/register-business', businessData);
+export const getSellerProfile = () => {
+  console.log('Fetching seller profile...');
+  return api.get('/seller/profile')
+    .then(response => {
+      console.log('Seller profile response:', response);
+      return response;
+    })
+    .catch(error => {
+      console.error('Error fetching seller profile:', error.response || error);
+      throw error;
+    });
+};
+export const updateSellerProfile = (profileData) => api.put('/seller/profile', profileData);
+export const getSellerProducts = () => {
+  console.log('Fetching seller products...');
+  return api.get('/seller/products')
+    .then(response => {
+      console.log('Seller products response:', response);
+      return response;
+    })
+    .catch(error => {
+      console.error('Error fetching seller products:', error.response || error);
+      throw error;
+    });
+};
+export const addProduct = (productData) => api.post('/seller/products', productData);
+export const updateProduct = (productId, productData) => api.put(`/seller/products/${productId}`, productData);
+export const deleteProduct = (productId) => api.delete(`/seller/products/${productId}`);
 
 export default api;

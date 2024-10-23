@@ -13,6 +13,10 @@ const cors = require('cors');
 const profileRoutes = require('./routes/profileRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const productRoutes = require('./routes/productRoutes');
+const supplierRoutes = require('./routes/supplierRoutes');
+const storeRoutes = require('./routes/storeRoutes');
+const businessRoutes = require('./routes/businessRoutes');
+const sellerRoutes = require('./routes/sellerRoutes');
 
 const app = express();
 
@@ -31,12 +35,16 @@ app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the Wholesale Platform API' });
 });
 app.use('/auth', authRoutes);
+app.use('/business', businessRoutes);
 app.use('/inventory', inventoryRoutes);
+app.use('/suppliers', supplierRoutes);
+app.use('/store', storeRoutes);
 app.use('/payments', paymentRoutes);
 app.use('/search', searchRoutes);
 app.use('/profile', profileRoutes);
 app.use('/orders', orderRoutes);
 app.use('/products', productRoutes);
+app.use('/seller', sellerRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {

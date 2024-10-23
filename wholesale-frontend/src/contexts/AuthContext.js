@@ -9,8 +9,10 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     const role = localStorage.getItem('userRole');
-    setIsAuthenticated(!!token);
-    setUserRole(role);
+    if (token && role) {
+      setIsAuthenticated(true);
+      setUserRole(role);
+    }
   }, []);
 
   const login = (token, role) => {

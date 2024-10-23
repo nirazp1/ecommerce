@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Container, Typography, Grid, Card, CardContent, CardMedia, Button, Box, TextField, Select, MenuItem, Pagination } from '@mui/material';
 import { getProducts } from '../api';
+import { CartContext } from '../contexts/CartContext';
 
 function ProductList() {
   const [products, setProducts] = useState([]);
@@ -10,6 +11,8 @@ function ProductList() {
   const [sortBy, setSortBy] = useState('');
   const [page, setPage] = useState(1);
   const productsPerPage = 12;
+
+  const { addToCart } = useContext(CartContext);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -84,7 +87,7 @@ function ProductList() {
         </Grid>
         <Grid container spacing={3}>
           {displayedProducts.map(product => (
-            <Grid item key={product.id} xs={12} sm={6} md={3}>
+            <Grid item key={product._id} xs={12} sm={6} md={3}>
               <Card>
                 <CardMedia
                   component="img"
@@ -99,7 +102,12 @@ function ProductList() {
                   <Typography variant="h6" color="primary">
                     ${product.price.toFixed(2)}
                   </Typography>
-                  <Button variant="contained" color="primary" fullWidth>
+                  <Button 
+                    variant="contained" 
+                    color="primary" 
+                    fullWidth
+                    onClick={() => addToCart(product)}
+                  >
                     Add to Cart
                   </Button>
                 </CardContent>

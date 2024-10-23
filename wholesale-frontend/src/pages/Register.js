@@ -7,20 +7,21 @@ import {
   Box, 
   Paper, 
   Avatar,
-  Link,
-  MenuItem
+  Link
 } from '@mui/material';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import StorefrontIcon from '@mui/icons-material/Storefront';
 import { register } from '../api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState('buyer');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+  const role = new URLSearchParams(location.search).get('role') || 'buyer';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,7 +34,11 @@ function Register() {
 
     try {
       await register({ email, password, role });
-      navigate('/login');
+      if (role === 'seller') {
+        navigate('/business-registration');
+      } else {
+        navigate('/login');
+      }
     } catch (error) {
       setError('Registration failed. Please try again.');
       console.error('Registration error:', error);
@@ -49,11 +54,11 @@ function Register() {
         alignItems: 'center',
         padding: 3
       }}>
-        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-          <PersonAddIcon />
+        <Avatar sx={{ m: 1, bgcolor: role === 'seller' ? 'primary.main' : 'secondary.main' }}>
+          {role === 'seller' ? <StorefrontIcon /> : <PersonAddIcon />}
         </Avatar>
         <Typography component="h1" variant="h5">
-          Sign up
+          Sign up as {role === 'seller' ? 'Seller' : 'Buyer'}
         </Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <TextField
@@ -92,20 +97,6 @@ function Register() {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            select
-            name="role"
-            label="Role"
-            id="role"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-          >
-            <MenuItem value="buyer">Buyer</MenuItem>
-            <MenuItem value="supplier">Supplier</MenuItem>
-          </TextField>
           {error && (
             <Typography color="error" align="center" sx={{ mt: 2 }}>
               {error}

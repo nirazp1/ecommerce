@@ -48,5 +48,6 @@ export const getFavoriteProducts = () => {
     return response;
   });
 };
+export const registerBusiness = (businessData) => api.post('/auth/register-business', businessData);
 
 export default api;

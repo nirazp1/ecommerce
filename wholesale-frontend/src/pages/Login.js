@@ -7,9 +7,11 @@ import {
   Box, 
   Paper, 
   Avatar,
-  Link
+  Link,
+  Divider
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import StorefrontIcon from '@mui/icons-material/Storefront';
 import { login } from '../api';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
@@ -21,13 +23,13 @@ function Login() {
   const { login: authLogin } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, role) => {
     e.preventDefault();
     setError('');
     try {
-      const response = await login({ email, password });
-      authLogin(response.data.token);
-      navigate('/');
+      const response = await login({ email, password, role });
+      authLogin(response.data.token, role);
+      navigate(role === 'buyer' ? '/' : '/seller-dashboard');
     } catch (error) {
       setError('Invalid email or password');
       console.error('Login error:', error);
@@ -47,9 +49,9 @@ function Login() {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Sign in
+          Sign in as Buyer
         </Typography>
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+        <Box component="form" onSubmit={(e) => handleSubmit(e, 'buyer')} noValidate sx={{ mt: 1 }}>
           <TextField
             margin="normal"
             required
@@ -85,7 +87,7 @@ function Login() {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
           >
-            Sign In
+            Sign In as Buyer
           </Button>
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <Link href="#" variant="body2">
@@ -95,6 +97,29 @@ function Login() {
               {"Don't have an account? Sign Up"}
             </Link>
           </Box>
+        </Box>
+        
+        <Divider sx={{ my: 4, width: '100%' }}>OR</Divider>
+        
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+          <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}>
+            <StorefrontIcon />
+          </Avatar>
+          <Typography component="h2" variant="h5" sx={{ mb: 2 }}>
+            Are you a Seller?
+          </Typography>
+          <Button
+            fullWidth
+            variant="outlined"
+            color="primary"
+            onClick={(e) => handleSubmit(e, 'seller')}
+            startIcon={<StorefrontIcon />}
+          >
+            Sign In as Seller
+          </Button>
+          <Link href="/register?role=seller" variant="body2" sx={{ mt: 2 }}>
+            {"Don't have a seller account? Register here"}
+          </Link>
         </Box>
       </Paper>
     </Container>

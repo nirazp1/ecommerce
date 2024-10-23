@@ -15,7 +15,8 @@ const userSchema = new mongoose.Schema({
     // For buyers
     purchaseHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }]
   },
-  kycVerified: { type: Boolean, default: false }
+  kycVerified: { type: Boolean, default: false },
+  favoriteProducts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

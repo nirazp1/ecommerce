@@ -6,11 +6,12 @@ export const ThemeContext = createContext();
 export const ThemeProvider = ({ children }) => {
   const [darkMode, setDarkMode] = useState(() => {
     const savedMode = localStorage.getItem('darkMode');
-    return savedMode === 'true';
+    return savedMode === 'true' || (!savedMode && window.matchMedia('(prefers-color-scheme: dark)').matches);
   });
 
   useEffect(() => {
     localStorage.setItem('darkMode', darkMode);
+    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
   }, [darkMode]);
 
   const toggleDarkMode = () => {
@@ -23,10 +24,15 @@ export const ThemeProvider = ({ children }) => {
         palette: {
           mode: darkMode ? 'dark' : 'light',
           primary: {
-            main: darkMode ? '#90caf9' : '#1976d2',
+            main: darkMode ? '#58a6ff' : '#0366d6',
           },
-          secondary: {
-            main: darkMode ? '#f48fb1' : '#dc004e',
+          background: {
+            default: darkMode ? '#0d1117' : '#ffffff',
+            paper: darkMode ? '#161b22' : '#ffffff',
+          },
+          text: {
+            primary: darkMode ? '#c9d1d9' : '#24292e',
+            secondary: darkMode ? '#8b949e' : '#586069',
           },
         },
       }),

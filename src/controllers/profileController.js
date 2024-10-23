@@ -9,7 +9,7 @@ exports.getProfile = async (req, res) => {
     res.json(user);
   } catch (error) {
     console.error('Error fetching profile:', error);
-    res.status(500).json({ message: 'Error fetching profile', error: error.message });
+    res.status(500).json({ message: 'Error fetching profile' });
   }
 };
 

@@ -10,10 +10,9 @@ const paymentRoutes = require('./payments/paymentRoutes');
 const searchRoutes = require('./search/searchRoutes');
 const socketManager = require('./socket');
 const cors = require('cors');
-const productRoutes = require('./routes/productRoutes');
-const supplierRoutes = require('./routes/supplierRoutes');
-const storeRoutes = require('./routes/storeRoutes');
 const profileRoutes = require('./routes/profileRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const productRoutes = require('./routes/productRoutes');
 
 const app = express();
 
@@ -35,10 +34,9 @@ app.use('/auth', authRoutes);
 app.use('/inventory', inventoryRoutes);
 app.use('/payments', paymentRoutes);
 app.use('/search', searchRoutes);
-app.use('/inventory/products', productRoutes);
-app.use('/suppliers', supplierRoutes);
-app.use('/store', storeRoutes);
 app.use('/profile', profileRoutes);
+app.use('/orders', orderRoutes);
+app.use('/products', productRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {

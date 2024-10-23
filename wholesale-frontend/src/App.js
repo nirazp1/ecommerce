@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import CssBaseline from '@mui/material/CssBaseline';
+import { CssBaseline, Box } from '@mui/material';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import Header from './components/Header';
@@ -12,8 +12,10 @@ function App() {
       <AuthProvider>
         <CssBaseline />
         <BrowserRouter>
-          <Header />
-          <Routes />
+          <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+            <Header />
+            <Routes />
+          </Box>
         </BrowserRouter>
       </AuthProvider>
     </ThemeProvider>

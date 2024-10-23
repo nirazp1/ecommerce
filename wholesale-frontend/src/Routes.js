@@ -5,7 +5,7 @@ import ProductList from './pages/ProductList';
 import SupplierList from './pages/SupplierList';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Profile from './pages/Profile';
+import UserDashboard from './pages/UserDashboard';
 
 function AppRoutes() {
   return (
@@ -15,7 +15,7 @@ function AppRoutes() {
       <Route path="/suppliers" element={<SupplierList />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/profile" element={<Profile />} />
+      <Route path="/dashboard" element={<UserDashboard />} />
     </Routes>
   );
 }

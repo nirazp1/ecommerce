@@ -1,9 +1,11 @@
 import React, { useState, useContext } from 'react';
-import { AppBar, Toolbar, Typography, Button, Box, IconButton, InputBase, Menu, MenuItem } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Box, IconButton, InputBase, Menu, MenuItem, Switch } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { AuthContext } from '../contexts/AuthContext';
 
@@ -27,7 +29,7 @@ function Header() {
   };
 
   return (
-    <AppBar position="static">
+    <AppBar position="static" color="default" elevation={1}>
       <Toolbar>
         <Typography variant="h6" component={Link} to="/" sx={{ flexGrow: 1, textDecoration: 'none', color: 'inherit' }}>
           Wholesale Platform
@@ -45,6 +47,7 @@ function Header() {
           </IconButton>
           {isAuthenticated ? (
             <>
+              <Button color="inherit" component={Link} to="/dashboard">Dashboard</Button>
               <IconButton color="inherit" onClick={handleMenu}>
                 <AccountCircleIcon />
               </IconButton>
@@ -53,13 +56,16 @@ function Header() {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
               >
-                <MenuItem component={Link} to="/profile" onClick={handleClose}>Profile</MenuItem>
+                <MenuItem component={Link} to="/dashboard" onClick={handleClose}>Dashboard</MenuItem>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </Menu>
             </>
           ) : (
             <Button color="inherit" component={Link} to="/login">Login</Button>
           )}
+          <IconButton sx={{ ml: 1 }} onClick={toggleDarkMode} color="inherit">
+            {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+          </IconButton>
         </Box>
       </Toolbar>
     </AppBar>

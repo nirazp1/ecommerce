@@ -3,12 +3,27 @@ import {
   Container, Typography, Grid, Card, CardContent, CardMedia, Button, Box, 
   TextField, Select, MenuItem, Pagination, Chip, Rating, InputAdornment,
   IconButton, Drawer, List, ListItem, ListItemText, Checkbox, FormGroup, FormControlLabel,
-  Slider, useTheme, useMediaQuery, CircularProgress
+  Slider, useTheme, useMediaQuery, CircularProgress, Paper
 } from '@mui/material';
-import { Search, FilterList, ShoppingCart } from '@mui/icons-material';
+import { Search, FilterList, ShoppingCart, ArrowForward } from '@mui/icons-material';
 import { getProducts } from '../api';
 import { getProductRecommendations } from '../services/aiService';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { CartContext } from '../contexts/CartContext';
+
+const UNSPLASH_ACCESS_KEY = 'YOUR_UNSPLASH_ACCESS_KEY'; // Replace with your Unsplash API key
+
+// Demo products with web images
+const demoProducts = [
+  { _id: 'demo1', name: 'Premium Headphones', description: 'High-quality wireless headphones with noise cancellation', category: 'Electronics', price: 199.99, quantity: 50, image: 'https://source.unsplash.com/featured/?headphones' },
+  { _id: 'demo2', name: 'Ergonomic Office Chair', description: 'Comfortable chair for long work hours', category: 'Furniture', price: 249.99, quantity: 30, image: 'https://source.unsplash.com/featured/?office-chair' },
+  { _id: 'demo3', name: 'Smart Home Hub', description: 'Control your entire home with voice commands', category: 'Smart Home', price: 129.99, quantity: 75, image: 'https://source.unsplash.com/featured/?smart-home' },
+  { _id: 'demo4', name: 'Portable Bluetooth Speaker', description: 'Waterproof speaker with 20-hour battery life', category: 'Electronics', price: 79.99, quantity: 100, image: 'https://source.unsplash.com/featured/?bluetooth-speaker' },
+  { _id: 'demo5', name: 'Stainless Steel Cookware Set', description: '10-piece set for all your cooking needs', category: 'Kitchen', price: 199.99, quantity: 40, image: 'https://source.unsplash.com/featured/?cookware' },
+  { _id: 'demo6', name: 'Yoga Mat', description: 'Non-slip, eco-friendly yoga mat', category: 'Fitness', price: 29.99, quantity: 200, image: 'https://source.unsplash.com/featured/?yoga-mat' },
+  { _id: 'demo7', name: 'LED Desk Lamp', description: 'Adjustable lamp with multiple lighting modes', category: 'Home Office', price: 49.99, quantity: 150, image: 'https://source.unsplash.com/featured/?desk-lamp' },
+  { _id: 'demo8', name: 'Electric Toothbrush', description: 'Rechargeable toothbrush with multiple cleaning modes', category: 'Personal Care', price: 89.99, quantity: 80, image: 'https://source.unsplash.com/featured/?electric-toothbrush' },
+];
 
 function ProductList() {
   const [products, setProducts] = useState([]);
@@ -25,31 +40,59 @@ function ProductList() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
+  const { addToCart } = React.useContext(CartContext);
   const productsPerPage = 12;
+
+  // New state for advisors/ads
+  const [advisors, setAdvisors] = useState([
+    { id: 1, name: "John Doe", expertise: "Electronics", image: "https://source.unsplash.com/random/?portrait" },
+    { id: 2, name: "Jane Smith", expertise: "Home & Garden", image: "https://source.unsplash.com/random/?woman" },
+    { id: 3, name: "Mike Johnson", expertise: "Sports Equipment", image: "https://source.unsplash.com/random/?man" },
+  ]);
 
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
         const response = await getProducts();
-        setProducts(response.data);
-        setFilteredProducts(response.data);
-        const uniqueCategories = [...new Set(response.data.map(product => product.category))];
+        const productsData = response.data.length > 0 ? response.data : demoProducts;
+        const productsWithImages = await Promise.all(productsData.map(async (product) => {
+          const imageUrl = await fetchUnsplashImage(product.category);
+          return { ...product, image: imageUrl };
+        }));
+        setProducts(productsWithImages);
+        setFilteredProducts(productsWithImages);
+        const uniqueCategories = [...new Set(productsWithImages.map(product => product.category))];
         setCategories(uniqueCategories);
 
         // Get AI-powered recommendations
         const userPreferences = { favoriteCategories: ['Electronics', 'Home & Garden'] };
-        const productHistory = response.data.slice(0, 5);
+        const productHistory = productsWithImages.slice(0, 5);
         const recommendedProducts = await getProductRecommendations(userPreferences, productHistory);
         setRecommendations(recommendedProducts);
       } catch (error) {
         console.error('Error fetching products:', error);
+        setProducts(demoProducts);
+        setFilteredProducts(demoProducts);
+        const uniqueCategories = [...new Set(demoProducts.map(product => product.category))];
+        setCategories(uniqueCategories);
       } finally {
         setLoading(false);
       }
     };
     fetchProducts();
   }, []);
+
+  const fetchUnsplashImage = async (category) => {
+    try {
+      const response = await fetch(`https://api.unsplash.com/photos/random?query=${category}&client_id=${UNSPLASH_ACCESS_KEY}`);
+      const data = await response.json();
+      return data.urls.regular;
+    } catch (error) {
+      console.error('Error fetching image from Unsplash:', error);
+      return `https://source.unsplash.com/featured/?${category.toLowerCase().replace(' ', '-')}`;
+    }
+  };
 
   useEffect(() => {
     let result = products;
@@ -80,6 +123,11 @@ function ProductList() {
 
   const handlePriceChange = (event, newValue) => {
     setPriceRange(newValue);
+  };
+
+  const handleAddToCart = (product) => {
+    addToCart(product);
+    // You can add a snackbar or some other notification here
   };
 
   const pageCount = Math.ceil(filteredProducts.length / productsPerPage);
@@ -121,6 +169,40 @@ function ProductList() {
     </Drawer>
   );
 
+  const AdSection = () => (
+    <Paper elevation={3} sx={{ mb: 4, p: 2, backgroundColor: theme.palette.background.default }}>
+      <Typography variant="h5" gutterBottom>Our Expert Advisors</Typography>
+      <Grid container spacing={2}>
+        {advisors.map((advisor) => (
+          <Grid item xs={12} sm={4} key={advisor.id}>
+            <Card>
+              <CardMedia
+                component="img"
+                height="140"
+                image={advisor.image}
+                alt={advisor.name}
+              />
+              <CardContent>
+                <Typography variant="h6">{advisor.name}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Expert in {advisor.expertise}
+                </Typography>
+                <Button 
+                  variant="outlined" 
+                  size="small" 
+                  endIcon={<ArrowForward />}
+                  sx={{ mt: 1 }}
+                >
+                  Get Advice
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </Paper>
+  );
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
@@ -133,6 +215,10 @@ function ProductList() {
     <Container maxWidth="xl">
       <Box sx={{ my: 4 }}>
         <Typography variant="h4" gutterBottom>Products</Typography>
+        
+        {/* Add the AdSection component here */}
+        <AdSection />
+
         <Grid container spacing={2} sx={{ mb: 4 }}>
           <Grid item xs={12} md={6}>
             <TextField
@@ -184,7 +270,9 @@ function ProductList() {
                 />
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Typography gutterBottom variant="h6" component="h2">
-                    {product.name}
+                    <Link to={`/product/${product._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                      {product.name}
+                    </Link>
                   </Typography>
                   <Typography variant="body2" color="text.secondary" gutterBottom>
                     {product.description.substring(0, 100)}...
@@ -202,10 +290,7 @@ function ProductList() {
                   color="primary" 
                   fullWidth
                   startIcon={<ShoppingCart />}
-                  onClick={() => {
-                    // Implement add to cart functionality
-                    console.log('Add to cart:', product);
-                  }}
+                  onClick={() => handleAddToCart(product)}
                 >
                   Add to Cart
                 </Button>
@@ -230,6 +315,12 @@ function ProductList() {
             {recommendations.map((product, index) => (
               <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
                 <Card>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image={`https://source.unsplash.com/featured/?${product.category.toLowerCase().replace(' ', '-')}`}
+                    alt={product.name}
+                  />
                   <CardContent>
                     <Typography variant="h6">{product.name}</Typography>
                     <Typography variant="body2" color="text.secondary">
@@ -238,6 +329,16 @@ function ProductList() {
                     <Typography variant="h6" color="primary">
                       ${product.price.toFixed(2)}
                     </Typography>
+                    <Button 
+                      variant="contained" 
+                      color="primary" 
+                      fullWidth
+                      startIcon={<ShoppingCart />}
+                      onClick={() => handleAddToCart(product)}
+                      sx={{ mt: 2 }}
+                    >
+                      Add to Cart
+                    </Button>
                   </CardContent>
                 </Card>
               </Grid>

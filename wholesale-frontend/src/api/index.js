@@ -86,13 +86,51 @@ export const addProduct = (productData) => api.post('/seller/products', productD
 export const updateProduct = (productId, productData) => api.put(`/seller/products/${productId}`, productData);
 export const deleteProduct = (productId) => api.delete(`/seller/products/${productId}`);
 
-// Mock functions (remove these when you have actual backend endpoints)
-export const getProductStock = (productId) => Promise.resolve(Math.floor(Math.random() * 100));
+// Add these new functions
+export const getProductDetails = (productId) => Promise.resolve({
+  _id: productId,
+  name: 'Sample Product',
+  description: 'This is a sample product description.',
+  price: 99.99,
+  image: 'https://via.placeholder.com/400',
+  rating: 4.5,
+  numReviews: 10,
+  details: {
+    'Brand': 'Sample Brand',
+    'Model': 'Sample Model',
+    'Color': 'Black'
+  }
+});
+
+export const getRelatedProducts = (productId) => Promise.resolve([
+  { _id: 'related1', name: 'Related Product 1', price: 89.99, image: 'https://via.placeholder.com/200' },
+  { _id: 'related2', name: 'Related Product 2', price: 79.99, image: 'https://via.placeholder.com/200' },
+  { _id: 'related3', name: 'Related Product 3', price: 69.99, image: 'https://via.placeholder.com/200' },
+]);
+
+export const getProductReviews = (productId) => Promise.resolve([
+  { userName: 'John Doe', userAvatar: 'https://via.placeholder.com/50', rating: 5, comment: 'Great product!' },
+  { userName: 'Jane Smith', userAvatar: 'https://via.placeholder.com/50', rating: 4, comment: 'Good value for money.' },
+]);
+
+// Add mock implementations for the new functions
+export const getProductStock = (productId) => Promise.resolve(Math.floor(Math.random() * 100) + 1);
 export const getShippingEstimate = (cart) => Promise.resolve(10.99);
 export const getSuggestedProducts = (productIds) => Promise.resolve([
-  { _id: 'sugg1', name: 'Suggested Product 1', price: 29.99 },
-  { _id: 'sugg2', name: 'Suggested Product 2', price: 39.99 },
-  { _id: 'sugg3', name: 'Suggested Product 3', price: 49.99 },
+  { _id: 'sugg1', name: 'Suggested Product 1', price: 59.99, image: 'https://via.placeholder.com/200' },
+  { _id: 'sugg2', name: 'Suggested Product 2', price: 69.99, image: 'https://via.placeholder.com/200' },
 ]);
+
+export const getPopularItems = () => api.get('/products/popular');
+
+// If you want to use mock data for now, you can use this instead:
+// export const getPopularItems = () => Promise.resolve({
+//   data: [
+//     { _id: 'pop1', name: 'Trending Gadget', price: 129.99, image: 'https://source.unsplash.com/featured/?gadget' },
+//     { _id: 'pop2', name: 'Best-selling Book', price: 19.99, image: 'https://source.unsplash.com/featured/?book' },
+//     { _id: 'pop3', name: 'Popular Kitchenware', price: 79.99, image: 'https://source.unsplash.com/featured/?kitchen' },
+//     { _id: 'pop4', name: 'Top-rated Electronics', price: 299.99, image: 'https://source.unsplash.com/featured/?electronics' },
+//   ]
+// });
 
 export default api;

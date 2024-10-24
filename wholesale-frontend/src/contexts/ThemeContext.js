@@ -1,5 +1,5 @@
 import React, { createContext, useState, useMemo, useEffect } from 'react';
-import { ThemeProvider as MuiThemeProvider, createTheme } from '@mui/material/styles';
+import { createTheme } from '@mui/material/styles';
 
 export const ThemeContext = createContext();
 
@@ -35,8 +35,8 @@ export const ThemeProvider = ({ children }) => {
   );
 
   return (
-    <ThemeContext.Provider value={{ darkMode, toggleDarkMode }}>
-      <MuiThemeProvider theme={theme}>{children}</MuiThemeProvider>
+    <ThemeContext.Provider value={{ darkMode, toggleDarkMode, theme }}>
+      {children}
     </ThemeContext.Provider>
   );
 };

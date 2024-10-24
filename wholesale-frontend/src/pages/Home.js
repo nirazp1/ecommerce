@@ -5,11 +5,12 @@ import {
   Rating, Chip, Snackbar, Alert
 } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { getProducts, getSuppliers, getStoreName } from '../api';
+import { getProducts, getSuppliers, getStoreName, getPopularItems } from '../api';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import SecurityIcon from '@mui/icons-material/Security';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { CartContext } from '../contexts/CartContext';
 
 // Demo products
@@ -28,6 +29,7 @@ function Home() {
   const [storeName, setStoreName] = useState('');
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [featuredSuppliers, setFeaturedSuppliers] = useState([]);
+  const [popularItems, setPopularItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -37,14 +39,16 @@ function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [storeResponse, productsResponse, suppliersResponse] = await Promise.all([
+        const [storeResponse, productsResponse, suppliersResponse, popularItemsResponse] = await Promise.all([
           getStoreName(),
           getProducts(),
-          getSuppliers()
+          getSuppliers(),
+          getPopularItems()
         ]);
         setStoreName(storeResponse.data.name);
         setFeaturedProducts(productsResponse.data.length > 0 ? productsResponse.data.slice(0, 8) : demoProducts);
         setFeaturedSuppliers(suppliersResponse.data.slice(0, 4));
+        setPopularItems(popularItemsResponse.data);
       } catch (error) {
         console.error('Error fetching data:', error);
         setFeaturedProducts(demoProducts);
@@ -106,6 +110,48 @@ function Home() {
         </Button>
       </Box>
     </Paper>
+  );
+
+  const PopularItems = () => (
+    <Box sx={{ my: 8 }}>
+      <Typography variant="h4" gutterBottom align="center">
+        Popular Items
+      </Typography>
+      <Grid container spacing={2}>
+        {popularItems.map((product) => (
+          <Grid item key={product._id} xs={12} sm={6} md={3}>
+            <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <CardMedia
+                component="img"
+                height="140"
+                image={product.image}
+                alt={product.name}
+              />
+              <CardContent sx={{ flexGrow: 1 }}>
+                <Typography gutterBottom variant="h6" component="h2">
+                  {product.name}
+                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
+                  <Typography variant="h6" color="primary">
+                    ${product.price.toFixed(2)}
+                  </Typography>
+                  <Chip icon={<TrendingUpIcon />} label="Trending" color="secondary" size="small" />
+                </Box>
+              </CardContent>
+              <Button 
+                size="small" 
+                color="primary" 
+                startIcon={<ShoppingCartIcon />}
+                sx={{ m: 1 }}
+                onClick={() => handleAddToCart(product)}
+              >
+                Add to Cart
+              </Button>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
   );
 
   const ProductList = () => (
@@ -232,6 +278,7 @@ function Home() {
   return (
     <Container maxWidth="lg">
       <HeroSection />
+      <PopularItems />
       <ProductList />
       <Divider sx={{ my: 4 }} />
       <Features />

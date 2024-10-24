@@ -86,4 +86,13 @@ export const addProduct = (productData) => api.post('/seller/products', productD
 export const updateProduct = (productId, productData) => api.put(`/seller/products/${productId}`, productData);
 export const deleteProduct = (productId) => api.delete(`/seller/products/${productId}`);
 
+// Mock functions (remove these when you have actual backend endpoints)
+export const getProductStock = (productId) => Promise.resolve(Math.floor(Math.random() * 100));
+export const getShippingEstimate = (cart) => Promise.resolve(10.99);
+export const getSuggestedProducts = (productIds) => Promise.resolve([
+  { _id: 'sugg1', name: 'Suggested Product 1', price: 29.99 },
+  { _id: 'sugg2', name: 'Suggested Product 2', price: 39.99 },
+  { _id: 'sugg3', name: 'Suggested Product 3', price: 49.99 },
+]);
+
 export default api;

@@ -7,6 +7,7 @@ import {
 } from '@mui/material';
 import { Search, FilterList, ShoppingCart } from '@mui/icons-material';
 import { getProducts } from '../api';
+import { getProductRecommendations } from '../services/aiService';
 import { useNavigate } from 'react-router-dom';
 
 function ProductList() {
@@ -20,6 +21,7 @@ function ProductList() {
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [recommendations, setRecommendations] = useState([]);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
@@ -34,6 +36,12 @@ function ProductList() {
         setFilteredProducts(response.data);
         const uniqueCategories = [...new Set(response.data.map(product => product.category))];
         setCategories(uniqueCategories);
+
+        // Get AI-powered recommendations
+        const userPreferences = { favoriteCategories: ['Electronics', 'Home & Garden'] };
+        const productHistory = response.data.slice(0, 5);
+        const recommendedProducts = await getProductRecommendations(userPreferences, productHistory);
+        setRecommendations(recommendedProducts);
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
@@ -215,6 +223,28 @@ function ProductList() {
         </Box>
       </Box>
       <FilterDrawer />
+      {recommendations.length > 0 && (
+        <Box sx={{ mt: 4 }}>
+          <Typography variant="h5" gutterBottom>Recommended for You</Typography>
+          <Grid container spacing={3}>
+            {recommendations.map((product, index) => (
+              <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6">{product.name}</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {product.category}
+                    </Typography>
+                    <Typography variant="h6" color="primary">
+                      ${product.price.toFixed(2)}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+      )}
     </Container>
   );
 }

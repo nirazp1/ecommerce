@@ -11,7 +11,6 @@ export const ThemeProvider = ({ children }) => {
 
   useEffect(() => {
     localStorage.setItem('darkMode', darkMode);
-    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
   }, [darkMode]);
 
   const toggleDarkMode = () => {
@@ -24,15 +23,11 @@ export const ThemeProvider = ({ children }) => {
         palette: {
           mode: darkMode ? 'dark' : 'light',
           primary: {
-            main: darkMode ? '#58a6ff' : '#0366d6',
+            main: darkMode ? '#90caf9' : '#1976d2',
           },
           background: {
-            default: darkMode ? '#0d1117' : '#ffffff',
-            paper: darkMode ? '#161b22' : '#ffffff',
-          },
-          text: {
-            primary: darkMode ? '#c9d1d9' : '#24292e',
-            secondary: darkMode ? '#8b949e' : '#586069',
+            default: darkMode ? '#303030' : '#fafafa',
+            paper: darkMode ? '#424242' : '#fff',
           },
         },
       }),

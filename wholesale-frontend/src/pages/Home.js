@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { 
   Container, Typography, Grid, Card, CardContent, CardMedia, Button, Box, 
   Paper, Divider, useTheme, useMediaQuery, Skeleton, IconButton,
-  Rating, Chip
+  Rating, Chip, Snackbar, Alert
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { getProducts, getSuppliers, getStoreName } from '../api';
@@ -10,6 +10,7 @@ import StorefrontIcon from '@mui/icons-material/Storefront';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import SecurityIcon from '@mui/icons-material/Security';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import { CartContext } from '../contexts/CartContext';
 
 // Demo products
 const demoProducts = [
@@ -30,6 +31,8 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { addToCart } = useContext(CartContext);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,6 +54,11 @@ function Home() {
     };
     fetchData();
   }, []);
+
+  const handleAddToCart = (product) => {
+    addToCart(product);
+    setSnackbar({ open: true, message: 'Product added to cart', severity: 'success' });
+  };
 
   const HeroSection = () => (
     <Paper
@@ -135,6 +143,7 @@ function Home() {
                 color="primary" 
                 startIcon={<ShoppingCartIcon />}
                 sx={{ m: 1 }}
+                onClick={() => handleAddToCart(product)}
               >
                 Add to Cart
               </Button>
@@ -227,6 +236,15 @@ function Home() {
       <Divider sx={{ my: 4 }} />
       <Features />
       <CallToAction />
+      <Snackbar 
+        open={snackbar.open} 
+        autoHideDuration={3000} 
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }

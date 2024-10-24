@@ -1,11 +1,19 @@
 import React, { useContext } from 'react';
-import { AppBar, Toolbar, Typography, Button, IconButton } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, IconButton, Badge, Switch } from '@mui/material';
 import { Link } from 'react-router-dom';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { AuthContext } from '../contexts/AuthContext';
+import { CartContext } from '../contexts/CartContext';
+import { ThemeContext } from '../contexts/ThemeContext';
 
 function Header() {
   const { isAuthenticated, userRole, logout } = useContext(AuthContext);
+  const { cart } = useContext(CartContext);
+  const { darkMode, toggleDarkMode } = useContext(ThemeContext);
+
+  const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <AppBar position="static">
@@ -28,7 +36,12 @@ function Header() {
           </>
         )}
         <IconButton color="inherit" component={Link} to="/cart">
-          <ShoppingCartIcon />
+          <Badge badgeContent={cartItemCount} color="secondary">
+            <ShoppingCartIcon />
+          </Badge>
+        </IconButton>
+        <IconButton color="inherit" onClick={toggleDarkMode}>
+          {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
         </IconButton>
       </Toolbar>
     </AppBar>

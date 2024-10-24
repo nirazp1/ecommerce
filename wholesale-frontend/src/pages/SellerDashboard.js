@@ -12,11 +12,12 @@ import {
   Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon,
   TrendingUp, AttachMoney, Inventory, Star, Dashboard, 
   ShoppingCart, Analytics, Settings, Menu as MenuIcon,
-  Notifications, Person, ExitToApp
+  Notifications, Person, ExitToApp, Brightness4, Brightness7
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { getSellerProfile, updateSellerProfile, getSellerProducts, addProduct, updateProduct, deleteProduct } from '../api';
 import { AuthContext } from '../contexts/AuthContext';
+import { ThemeContext } from '../contexts/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 
 const drawerWidth = 240;
@@ -54,6 +55,7 @@ const formatPrice = (price) => {
 
 function SellerDashboard() {
   const { isAuthenticated, userRole, logout } = useContext(AuthContext);
+  const { darkMode, toggleDarkMode } = useContext(ThemeContext);
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -230,6 +232,9 @@ function SellerDashboard() {
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             {profile?.storeName || 'Seller Dashboard'}
           </Typography>
+          <IconButton color="inherit" onClick={toggleDarkMode}>
+            {darkMode ? <Brightness7 /> : <Brightness4 />}
+          </IconButton>
           <IconButton color="inherit">
             <Notifications />
           </IconButton>

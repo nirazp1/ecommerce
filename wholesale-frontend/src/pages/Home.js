@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { 
   Container, Typography, Grid, Card, CardContent, CardMedia, Button, Box, 
   Paper, Divider, useTheme, useMediaQuery, Skeleton, IconButton,
-  Rating, Chip, Snackbar, Alert
+  Rating, Chip, Snackbar, Alert, Avatar, List, ListItem, ListItemText, ListItemAvatar
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { getProducts, getSuppliers, getStoreName, getPopularItems } from '../api';
@@ -11,18 +11,36 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import SecurityIcon from '@mui/icons-material/Security';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import { CartContext } from '../contexts/CartContext';
 
-// Demo products
+// Unsplash API access key (you should store this in an environment variable)
+const UNSPLASH_ACCESS_KEY = 'YOUR_UNSPLASH_ACCESS_KEY';
+
+// Function to get a random image URL based on category
+const getRandomImageUrl = async (category) => {
+  try {
+    const response = await fetch(`https://api.unsplash.com/photos/random?query=${category}&client_id=${UNSPLASH_ACCESS_KEY}`);
+    const data = await response.json();
+    return data.urls.regular;
+  } catch (error) {
+    console.error('Error fetching image from Unsplash:', error);
+    return `https://source.unsplash.com/featured/?${category.toLowerCase().replace(/\s+/g, '-')}`;
+  }
+};
+
+// Demo products with random images
 const demoProducts = [
-  { _id: 'demo1', name: 'Premium Headphones', description: 'High-quality wireless headphones with noise cancellation', category: 'Electronics', price: 199.99, quantity: 50, image: 'https://source.unsplash.com/featured/?headphones' },
-  { _id: 'demo2', name: 'Ergonomic Office Chair', description: 'Comfortable chair for long work hours', category: 'Furniture', price: 249.99, quantity: 30, image: 'https://source.unsplash.com/featured/?chair' },
-  { _id: 'demo3', name: 'Smart Home Hub', description: 'Control your entire home with voice commands', category: 'Smart Home', price: 129.99, quantity: 75, image: 'https://source.unsplash.com/featured/?smarthome' },
-  { _id: 'demo4', name: 'Portable Bluetooth Speaker', description: 'Waterproof speaker with 20-hour battery life', category: 'Electronics', price: 79.99, quantity: 100, image: 'https://source.unsplash.com/featured/?speaker' },
-  { _id: 'demo5', name: 'Stainless Steel Cookware Set', description: '10-piece set for all your cooking needs', category: 'Kitchen', price: 199.99, quantity: 40, image: 'https://source.unsplash.com/featured/?cookware' },
-  { _id: 'demo6', name: 'Yoga Mat', description: 'Non-slip, eco-friendly yoga mat', category: 'Fitness', price: 29.99, quantity: 200, image: 'https://source.unsplash.com/featured/?yogamat' },
-  { _id: 'demo7', name: 'LED Desk Lamp', description: 'Adjustable lamp with multiple lighting modes', category: 'Home Office', price: 49.99, quantity: 150, image: 'https://source.unsplash.com/featured/?desklamp' },
-  { _id: 'demo8', name: 'Electric Toothbrush', description: 'Rechargeable toothbrush with multiple cleaning modes', category: 'Personal Care', price: 89.99, quantity: 80, image: 'https://source.unsplash.com/featured/?toothbrush' },
+  { _id: 'demo1', name: 'Premium Headphones', description: 'High-quality wireless headphones with noise cancellation', category: 'Electronics', price: 199.99, quantity: 50, image: getRandomImageUrl('headphones') },
+  { _id: 'demo2', name: 'Ergonomic Office Chair', description: 'Comfortable chair for long work hours', category: 'Furniture', price: 249.99, quantity: 30, image: getRandomImageUrl('office-chair') },
+  { _id: 'demo3', name: 'Smart Home Hub', description: 'Control your entire home with voice commands', category: 'Smart Home', price: 129.99, quantity: 75, image: getRandomImageUrl('smart-home') },
+  { _id: 'demo4', name: 'Portable Bluetooth Speaker', description: 'Waterproof speaker with 20-hour battery life', category: 'Electronics', price: 79.99, quantity: 100, image: getRandomImageUrl('bluetooth-speaker') },
+  { _id: 'demo5', name: 'Stainless Steel Cookware Set', description: '10-piece set for all your cooking needs', category: 'Kitchen', price: 199.99, quantity: 40, image: getRandomImageUrl('cookware') },
+  { _id: 'demo6', name: 'Yoga Mat', description: 'Non-slip, eco-friendly yoga mat', category: 'Fitness', price: 29.99, quantity: 200, image: getRandomImageUrl('yoga-mat') },
+  { _id: 'demo7', name: 'LED Desk Lamp', description: 'Adjustable lamp with multiple lighting modes', category: 'Home Office', price: 49.99, quantity: 150, image: getRandomImageUrl('desk-lamp') },
+  { _id: 'demo8', name: 'Electric Toothbrush', description: 'Rechargeable toothbrush with multiple cleaning modes', category: 'Personal Care', price: 89.99, quantity: 80, image: getRandomImageUrl('electric-toothbrush') },
 ];
 
 function Home() {
@@ -46,12 +64,25 @@ function Home() {
           getPopularItems()
         ]);
         setStoreName(storeResponse.data.name);
-        setFeaturedProducts(productsResponse.data.length > 0 ? productsResponse.data.slice(0, 8) : demoProducts);
+        
+        // Fetch images for products
+        const productsWithImages = await Promise.all(productsResponse.data.map(async (product) => ({
+          ...product,
+          image: await getRandomImageUrl(product.category)
+        })));
+        setFeaturedProducts(productsWithImages.slice(0, 8));
+        
         setFeaturedSuppliers(suppliersResponse.data.slice(0, 4));
-        setPopularItems(popularItemsResponse.data);
+        
+        // Fetch images for popular items
+        const popularItemsWithImages = await Promise.all(popularItemsResponse.data.map(async (product) => ({
+          ...product,
+          image: await getRandomImageUrl(product.category)
+        })));
+        setPopularItems(popularItemsWithImages);
       } catch (error) {
         console.error('Error fetching data:', error);
-        setFeaturedProducts(demoProducts);
+        // You might want to set some default data here
       } finally {
         setLoading(false);
       }
@@ -112,6 +143,144 @@ function Home() {
     </Paper>
   );
 
+  const TrendingCategories = () => (
+    <Box sx={{ my: 8 }}>
+      <Typography variant="h4" gutterBottom align="center">
+        Trending Categories
+      </Typography>
+      <Grid container spacing={2}>
+        {['Electronics', 'Fashion', 'Home & Garden', 'Beauty', 'Sports'].map((category) => (
+          <Grid item key={category} xs={6} sm={4} md={2}>
+            <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', p: 2 }}>
+              <CardMedia
+                component="img"
+                sx={{ width: 80, height: 80, mb: 1 }}
+                image={`https://source.unsplash.com/featured/?${category.toLowerCase()}`}
+                alt={category}
+              />
+              <Typography variant="subtitle1" align="center">{category}</Typography>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
+  );
+
+  const FeaturedSuppliers = () => (
+    <Box sx={{ my: 8 }}>
+      <Typography variant="h4" gutterBottom align="center">
+        Featured Suppliers
+      </Typography>
+      <Grid container spacing={2}>
+        {featuredSuppliers.map((supplier) => (
+          <Grid item key={supplier._id} xs={12} sm={6} md={3}>
+            <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <CardMedia
+                component="img"
+                height="140"
+                image={supplier.coverImage || `https://source.unsplash.com/featured/?business`}
+                alt={supplier.companyName}
+              />
+              <CardContent sx={{ flexGrow: 1 }}>
+                <Typography gutterBottom variant="h6" component="h2">
+                  {supplier.companyName}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {supplier.description.substring(0, 100)}...
+                </Typography>
+                <Chip 
+                  icon={<VerifiedUserIcon />} 
+                  label="Verified Supplier" 
+                  color="primary" 
+                  size="small" 
+                  sx={{ mt: 1 }}
+                />
+              </CardContent>
+              <Button size="small" color="primary" component={Link} to={`/suppliers/${supplier._id}`}>
+                View Profile
+              </Button>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
+  );
+
+  const BulkOrderingBenefits = () => (
+    <Box sx={{ my: 8 }}>
+      <Typography variant="h4" gutterBottom align="center">
+        Benefits of Bulk Ordering
+      </Typography>
+      <Grid container spacing={4}>
+        <Grid item xs={12} md={4}>
+          <Box sx={{ textAlign: 'center' }}>
+            <MonetizationOnIcon sx={{ fontSize: 60, color: 'primary.main' }} />
+            <Typography variant="h6" gutterBottom>
+              Volume Discounts
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Save more when you buy in larger quantities
+            </Typography>
+          </Box>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Box sx={{ textAlign: 'center' }}>
+            <LocalShippingIcon sx={{ fontSize: 60, color: 'primary.main' }} />
+            <Typography variant="h6" gutterBottom>
+              Consolidated Shipping
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Reduce shipping costs with bulk orders
+            </Typography>
+          </Box>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Box sx={{ textAlign: 'center' }}>
+            <SupportAgentIcon sx={{ fontSize: 60, color: 'primary.main' }} />
+            <Typography variant="h6" gutterBottom>
+              Dedicated Support
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Get personalized assistance for large orders
+            </Typography>
+          </Box>
+        </Grid>
+      </Grid>
+    </Box>
+  );
+
+  const Testimonials = () => (
+    <Box sx={{ my: 8 }}>
+      <Typography variant="h4" gutterBottom align="center">
+        What Our Customers Say
+      </Typography>
+      <Grid container spacing={4}>
+        {[
+          { name: 'John Doe', role: 'Retail Store Owner', comment: 'This platform has revolutionized our inventory management. The bulk ordering feature saves us both time and money.' },
+          { name: 'Jane Smith', role: 'E-commerce Entrepreneur', comment: 'The variety of verified suppliers on this platform is impressive. It\'s been a game-changer for our online business.' },
+          { name: 'Mike Johnson', role: 'Procurement Manager', comment: 'The streamlined ordering process and reliable shipping have significantly improved our supply chain efficiency.' }
+        ].map((testimonial, index) => (
+          <Grid item key={index} xs={12} md={4}>
+            <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <CardContent sx={{ flexGrow: 1 }}>
+                <Typography variant="body1" paragraph>
+                  "{testimonial.comment}"
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Avatar sx={{ bgcolor: 'primary.main', mr: 2 }}>{testimonial.name[0]}</Avatar>
+                  <Box>
+                    <Typography variant="subtitle1">{testimonial.name}</Typography>
+                    <Typography variant="body2" color="text.secondary">{testimonial.role}</Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
+  );
+
   const PopularItems = () => (
     <Box sx={{ my: 8 }}>
       <Typography variant="h4" gutterBottom align="center">
@@ -123,7 +292,7 @@ function Home() {
             <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
               <CardMedia
                 component="img"
-                height="140"
+                height="200"
                 image={product.image}
                 alt={product.name}
               />
@@ -165,7 +334,7 @@ function Home() {
             <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
               <CardMedia
                 component="img"
-                height="140"
+                height="200"
                 image={product.image}
                 alt={product.name}
               />
@@ -278,8 +447,16 @@ function Home() {
   return (
     <Container maxWidth="lg">
       <HeroSection />
+      <TrendingCategories />
       <PopularItems />
+      <Divider sx={{ my: 4 }} />
+      <FeaturedSuppliers />
+      <Divider sx={{ my: 4 }} />
       <ProductList />
+      <Divider sx={{ my: 4 }} />
+      <BulkOrderingBenefits />
+      <Divider sx={{ my: 4 }} />
+      <Testimonials />
       <Divider sx={{ my: 4 }} />
       <Features />
       <CallToAction />

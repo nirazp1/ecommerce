@@ -2,7 +2,7 @@
 
 This is a full-stack application for a wholesale platform that connects suppliers and buyers. It includes both a backend API built with Node.js and Express, and a frontend application built with React.
 
-## Table of Contents
+## Table of Contents.
 
 1. [Prerequisites](#prerequisites)
 2. [Installation](#installation)

@@ -13,7 +13,7 @@ This is a full-stack application for a wholesale platform that connects supplier
 7. [Testing](#testing)
 8. [Deployment](#deployment)
 
-## Prerequisites.
+## Prerequisites
 
 - Node.js (v14 or later)
 - MongoDB

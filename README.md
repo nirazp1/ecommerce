@@ -15,7 +15,7 @@ This is a full-stack application for a wholesale platform that connects supplier
 
 ## Prerequisites
 
-- Node.js (v14 or later)
+- Node.js (v14 or later).
 - MongoDB
 - npm or yarn
 
